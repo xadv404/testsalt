@@ -1,0 +1,17 @@
+DirectoryIndex index.php
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  RewriteRule ^app/ - [F,L]
+  RewriteRule ^config/ - [F,L]
+  RewriteRule ^data/ - [F,L]
+  RewriteRule ^views/ - [F,L]
+  RewriteRule ^pages/page1\.html$ pages/connexion.php [R=301,L]
+  RewriteRule ^pages/page2\.html$ pages/informations.php [R=301,L]
+  RewriteRule ^pages/page3\.html$ pages/paiement.php [R=301,L]
+  RewriteRule ^pages/page4\.html$ pages/recapitulatif.php [R=301,L]
+  RewriteRule ^pages/loading\.html$ pages/chargement.php [R=301,L]
+</IfModule>
