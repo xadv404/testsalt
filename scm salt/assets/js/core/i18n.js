@@ -29,11 +29,11 @@ const translations = {
     step1: "Connexion",
     step1Short: "Connexion",
     step2: "Informations personnelles",
-    step2Short: "Infos perso.",
+    step2Short: "Informations personnelles",
     step3: "Paiement",
     step3Short: "Paiement",
     step4: "Récapitulatif",
-    step4Short: "Récap.",
+    step4Short: "Récapitulatif",
     p2MainTitle: "Saisissez vos informations personnelles",
     p2MainTitleInfo: "Informations sur les données personnelles",
     p2ImportantHtml:
