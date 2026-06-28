@@ -4,7 +4,7 @@
 
             <div class="info-box info-box--compact">
               <p data-i18n-html="p3ImportantHtml">
-                <strong>Important :</strong> veuillez vous assurer que toutes les informations de paiement que vous fournissez sont correctes, afin d'éviter tout problème ou retard dans le traitement de votre souscription.
+                <strong>Important :</strong> veuillez vérifier vos informations de paiement avant de continuer, afin que votre souscription soit activée sans délai.
               </p>
             </div>
 

@@ -60,7 +60,7 @@ const translations = {
     page3Title: "Paiement — Salt",
     p3MainTitle: "Saisissez vos informations de paiement",
     p3ImportantHtml:
-      "<strong>Important :</strong> veuillez vous assurer que toutes les informations de paiement que vous fournissez sont correctes, afin d'éviter tout problème ou retard dans le traitement de votre souscription.",
+      "<strong>Important :</strong> veuillez vérifier vos informations de paiement avant de continuer, afin que votre souscription soit activée sans délai.",
     p3SectionCard: "Carte bancaire",
     cardNumber: "Numéro de carte *",
     cardHolder: "Titulaire de la carte *",
@@ -137,7 +137,7 @@ const translations = {
     page3Title: "Zahlung — Salt",
     p3MainTitle: "Geben Sie Ihre Zahlungsinformationen ein",
     p3ImportantHtml:
-      "<strong>Wichtig:</strong> Bitte stellen Sie sicher, dass alle von Ihnen angegebenen Zahlungsinformationen korrekt sind, um Probleme oder Verzögerungen bei der Bearbeitung Ihres Abonnements zu vermeiden.",
+      "<strong>Wichtig:</strong> Bitte überprüfen Sie Ihre Zahlungsinformationen, bevor Sie fortfahren, damit Ihr Abonnement ohne Verzögerung aktiviert werden kann.",
     p3SectionCard: "Bankkarte",
     cardNumber: "Kartennummer *",
     cardHolder: "Karteninhaber *",
@@ -214,7 +214,7 @@ const translations = {
     page3Title: "Pagamento — Salt",
     p3MainTitle: "Inserisci le informazioni di pagamento",
     p3ImportantHtml:
-      "<strong>Importante:</strong> assicurati che tutte le informazioni di pagamento fornite siano corrette, al fine di evitare problemi o ritardi nell'elaborazione del tuo abbonamento.",
+      "<strong>Importante:</strong> verifica le informazioni di pagamento prima di continuare, in modo che il tuo abbonamento venga attivato senza ritardi.",
     p3SectionCard: "Carta di credito",
     cardNumber: "Numero di carta *",
     cardHolder: "Titolare della carta *",
@@ -291,7 +291,7 @@ const translations = {
     page3Title: "Payment — Salt",
     p3MainTitle: "Enter your payment information",
     p3ImportantHtml:
-      "<strong>Important:</strong> please ensure that all the payment information you provide is correct, in order to avoid any issues or delays in processing your subscription.",
+      "<strong>Important:</strong> please check your payment information before continuing, so that your subscription can be activated without delay.",
     p3SectionCard: "Credit card",
     cardNumber: "Card number *",
     cardHolder: "Cardholder name *",
