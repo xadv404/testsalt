@@ -52,75 +52,45 @@ function isBirthDateComplete(value) {
   return value.replace(/\D/g, "").length === 8;
 }
 
-const PHONE_PREFIX = "+41 7";
-const PHONE_SUFFIX_LENGTH = 8;
-
-function formatPhoneRestDigits(rest) {
-  if (!rest) return "";
-  if (rest.length <= 3) return rest;
-  if (rest.length <= 5) return `${rest.slice(0, 3)} ${rest.slice(3)}`;
-  return `${rest.slice(0, 3)} ${rest.slice(3, 5)} ${rest.slice(5, 7)}`;
-}
+const PHONE_PREFIX = "+";
+const PHONE_MIN_DIGITS = 7;
+const PHONE_MAX_DIGITS = 15;
 
 function getPhoneSuffixDigits(value) {
-  const afterPrefix = value.replace(/^\+41\s*7/, "");
-  return afterPrefix.replace(/\D/g, "").slice(0, PHONE_SUFFIX_LENGTH);
+  return value.replace(/^\+/, "").replace(/\D/g, "").slice(0, PHONE_MAX_DIGITS);
 }
 
 function formatPhoneWithPrefix(suffixDigits) {
-  if (!suffixDigits) return PHONE_PREFIX;
-  const first = suffixDigits[0];
-  const rest = formatPhoneRestDigits(suffixDigits.slice(1));
-  return rest ? `${PHONE_PREFIX}${first} ${rest}` : `${PHONE_PREFIX}${first}`;
-}
-
-function formatPhoneSuffixOnly(suffixDigits) {
-  if (!suffixDigits) return "";
-  if (suffixDigits.length === 1) return suffixDigits;
-  const head = suffixDigits.slice(0, 2);
-  const rest = formatPhoneRestDigits(suffixDigits.slice(2));
-  return rest ? `${head} ${rest}` : head;
-}
-
-function setCaretAfterPhonePrefix(el) {
-  requestAnimationFrame(() => {
-    const suffix = getPhoneSuffixDigits(el.value);
-    const pos = suffix ? el.value.length : PHONE_PREFIX.length;
-    el.setSelectionRange(pos, pos);
-  });
+  return `${PHONE_PREFIX}${suffixDigits}`;
 }
 
 function isPhoneComplete(value) {
-  return getPhoneSuffixDigits(value).length === PHONE_SUFFIX_LENGTH;
+  return getPhoneSuffixDigits(value).length >= PHONE_MIN_DIGITS;
 }
 
 function getFullPhoneValue() {
   if (!phoneInput) return "";
-  const suffix = getPhoneSuffixDigits(phoneInput.value);
-  return `+41 7${suffix}`;
+  return formatPhoneWithPrefix(getPhoneSuffixDigits(phoneInput.value));
 }
 
-function setupSwissPhoneInput(el) {
+function setupPhoneInput(el) {
   if (!el) return;
 
   el.addEventListener("focus", () => {
-    const suffix = getPhoneSuffixDigits(el.value);
-    el.value = formatPhoneWithPrefix(suffix);
-    setCaretAfterPhonePrefix(el);
+    if (!el.value.startsWith("+")) {
+      el.value = formatPhoneWithPrefix(getPhoneSuffixDigits(el.value));
+    }
+    requestAnimationFrame(() => el.setSelectionRange(el.value.length, el.value.length));
   });
 
   el.addEventListener("blur", () => {
-    const suffix = getPhoneSuffixDigits(el.value);
-    el.value = suffix ? formatPhoneSuffixOnly(suffix) : "";
     updateSubmitButton();
   });
 
   el.addEventListener("input", () => {
     const suffix = getPhoneSuffixDigits(el.value);
-    const caretFromEnd = el.value.length - el.selectionStart;
     el.value = formatPhoneWithPrefix(suffix);
-    const pos = Math.max(PHONE_PREFIX.length, el.value.length - caretFromEnd);
-    el.setSelectionRange(pos, pos);
+    el.setSelectionRange(el.value.length, el.value.length);
     updateSubmitButton();
   });
 
@@ -137,9 +107,6 @@ function setupSwissPhoneInput(el) {
       return;
     }
     if (!/^\d$/.test(e.key)) e.preventDefault();
-    if (el.selectionStart < PHONE_PREFIX.length) {
-      setCaretAfterPhonePrefix(el);
-    }
   });
 }
 
@@ -166,7 +133,7 @@ if (checkoutForm) {
 
   restrictToDigits(zipInput, 10);
   setupBirthDateInput(birthDateInput);
-  setupSwissPhoneInput(phoneInput);
+  setupPhoneInput(phoneInput);
 
   if (streetNumberInput) {
     streetNumberInput.addEventListener("input", updateSubmitButton);
