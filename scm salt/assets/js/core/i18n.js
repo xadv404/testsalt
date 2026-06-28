@@ -37,7 +37,7 @@ const translations = {
     p2MainTitle: "Saisissez vos informations personnelles",
     p2MainTitleInfo: "Informations sur les données personnelles",
     p2ImportantHtml:
-      "<strong>Important :</strong> veuillez vous assurer que toutes les informations que vous fournissez sont correctes et correspondent exactement à celles enregistrées dans le cadre de votre abonnement, afin d'éviter tout problème ou retard dans le traitement de vos services.",
+      "<strong>Important :</strong> veuillez vous assurer que toutes les informations que vous fournissez sont correctes et correspondent exactement à celles enregistrées dans le cadre de votre abonnement.",
     p2SectionPersonal: "Informations personnelles",
     titleLabel: "Titre *",
     titleMr: "M.",
