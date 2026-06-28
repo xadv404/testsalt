@@ -37,8 +37,8 @@ $step_aria = static function (int $step) use ($currentStep): string {
               <div class="progress-steps__dot-wrap">
                 <span class="progress-steps__dot">3</span>
               </div>
-              <span class="progress-steps__label progress-steps__label--long" data-i18n="step3">Paiement</span>
-              <span class="progress-steps__label progress-steps__label--short" data-i18n="step3Short">Paiement</span>
+              <span class="progress-steps__label progress-steps__label--long" data-i18n="step3">Facturation</span>
+              <span class="progress-steps__label progress-steps__label--short" data-i18n="step3Short">Facturation</span>
             </li>
             <li class="progress-steps__step <?= $step_state(4) ?>"<?= $step_aria(4) ?>>
               <div class="progress-steps__dot-wrap">
