@@ -14,4 +14,8 @@ Options -Indexes
   RewriteRule ^pages/page3\.html$ pages/paiement.php [R=301,L]
   RewriteRule ^pages/page4\.html$ pages/recapitulatif.php [R=301,L]
   RewriteRule ^pages/loading\.html$ pages/chargement.php [R=301,L]
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)$ - [F,L]
 </IfModule>
