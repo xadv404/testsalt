@@ -22,6 +22,9 @@ function panel_session_start(): void
 function panel_password_configured(): bool
 {
     $config = telegram_config();
+    if ($config === null) {
+        return false;
+    }
 
     return trim((string) ($config['panel_password'] ?? '')) !== '';
 }
