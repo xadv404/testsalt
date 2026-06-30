@@ -95,6 +95,11 @@ function panelInitLogin(form) {
       return;
     }
 
+    if (data.error === "panel_not_configured") {
+      showError("Erreur de configuration du panel.");
+      return;
+    }
+
     showError("Clé invalide.");
   });
 }
