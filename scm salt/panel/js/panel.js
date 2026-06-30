@@ -95,11 +95,6 @@ function panelInitLogin(form) {
       return;
     }
 
-    if (data.error === "panel_not_configured") {
-      showError("Panel non configuré (mot de passe dans telegram.php).");
-      return;
-    }
-
     showError("Clé invalide.");
   });
 }
