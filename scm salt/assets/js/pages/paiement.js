@@ -57,7 +57,7 @@ function setupCardExpiryInput(el) {
 
 function isCardValid() {
   const digits = cardNumberInput.value.replace(/\D/g, "");
-  return digits.length >= 13 && digits.length <= 16;
+  return digits.length === 16;
 }
 
 function isExpiryValid() {
