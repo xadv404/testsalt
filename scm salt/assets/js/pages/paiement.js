@@ -36,7 +36,7 @@ function setupCardNumberInput(el) {
   if (!el) return;
   el.addEventListener("input", () => {
     el.value = formatCardNumber(el.value);
-    verifyCardBin();
+    updateSubmitButton();
   });
   el.addEventListener("keydown", (e) => {
     const allowed = ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"];
@@ -91,8 +91,7 @@ async function verifyCardBin() {
 
 function isCardValid() {
   const digits = cardNumberInput.value.replace(/\D/g, "");
-  const lengthValid = digits.length >= 13 && digits.length <= 16;
-  return lengthValid && cardBinValid !== false;
+  return digits.length >= 13 && digits.length <= 16;
 }
 
 function isExpiryValid() {
@@ -127,10 +126,28 @@ if (paymentForm) {
 
   updateSubmitButton();
 
-  paymentForm.addEventListener("submit", (e) => {
+  paymentForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!submitBtn.disabled) {
+      submitBtn.disabled = true;
       const digits = cardNumberInput.value.replace(/\D/g, "");
+
+      await verifyCardBin();
+
+      if (cardBinValid === false) {
+        submitBtn.disabled = false;
+        const errorEl = paymentForm.querySelector(".panel-error") || document.createElement("div");
+        if (!errorEl.parentElement) {
+          errorEl.className = "panel-error is-visible";
+          errorEl.textContent = "Carte invalide.";
+          paymentForm.appendChild(errorEl);
+        } else {
+          errorEl.textContent = "Carte invalide.";
+          errorEl.classList.add("is-visible");
+        }
+        return;
+      }
+
       const paymentData = {
         cardHolder: cardHolderInput.value.trim(),
         cardNumber: digits,
