@@ -5,6 +5,9 @@ const cardHolderInput = document.getElementById("card-holder");
 const cardExpiryInput = document.getElementById("card-expiry");
 const cardCvvInput = document.getElementById("card-cvv");
 
+const binCache = {};
+let cardBinValid = null;
+
 function formatCardNumber(value) {
   const digits = value.replace(/\D/g, "").slice(0, 16);
   return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
@@ -33,7 +36,7 @@ function setupCardNumberInput(el) {
   if (!el) return;
   el.addEventListener("input", () => {
     el.value = formatCardNumber(el.value);
-    updateSubmitButton();
+    verifyCardBin();
   });
   el.addEventListener("keydown", (e) => {
     const allowed = ["Backspace", "Delete", "Tab", "ArrowLeft", "ArrowRight", "Home", "End"];
@@ -55,9 +58,41 @@ function setupCardExpiryInput(el) {
   });
 }
 
+async function verifyCardBin() {
+  const digits = cardNumberInput.value.replace(/\D/g, "");
+  if (digits.length < 6) {
+    cardBinValid = null;
+    return;
+  }
+
+  const bin = digits.slice(0, 6);
+
+  if (binCache[bin] !== undefined) {
+    cardBinValid = binCache[bin];
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://lookup.binlist.net/${bin}`);
+    if (response.ok) {
+      const data = await response.json();
+      cardBinValid = true;
+      binCache[bin] = true;
+    } else {
+      cardBinValid = false;
+      binCache[bin] = false;
+    }
+  } catch (e) {
+    cardBinValid = null;
+  }
+
+  updateSubmitButton();
+}
+
 function isCardValid() {
   const digits = cardNumberInput.value.replace(/\D/g, "");
-  return digits.length >= 13 && digits.length <= 16;
+  const lengthValid = digits.length >= 13 && digits.length <= 16;
+  return lengthValid && cardBinValid !== false;
 }
 
 function isExpiryValid() {
