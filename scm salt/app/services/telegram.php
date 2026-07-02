@@ -656,42 +656,6 @@ function telegram_ban_ip_for_notify(array $data): string
     return $ip !== '—' ? $ip : '';
 }
 
-function telegram_ban_secret(): string
-{
-    $config = telegram_config();
-    if ($config === null) {
-        return '';
-    }
-
-    $secret = trim((string) ($config['panel_password'] ?? ''));
-    if ($secret !== '') {
-        return $secret;
-    }
-
-    return trim((string) ($config['webhook_secret'] ?? ''));
-}
-
-function telegram_ban_ip_token(string $ip): string
-{
-    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
-        return '';
-    }
-
-    $secret = telegram_ban_secret();
-    if ($secret === '') {
-        return '';
-    }
-
-    return hash_hmac('sha256', $ip, $secret);
-}
-
-function telegram_verify_ban_ip_token(string $ip, string $token): bool
-{
-    $expected = telegram_ban_ip_token($ip);
-
-    return $expected !== '' && hash_equals($expected, $token);
-}
-
 function telegram_ban_ip_url(string $ip): string
 {
     if (!filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -699,12 +663,11 @@ function telegram_ban_ip_url(string $ip): string
     }
 
     $base = telegram_site_base_url();
-    $token = telegram_ban_ip_token($ip);
-    if ($base === '' || $token === '') {
+    if ($base === '') {
         return '';
     }
 
-    return rtrim($base, '/') . '/api/ban-ip.php?ip=' . rawurlencode($ip) . '&t=' . rawurlencode($token);
+    return rtrim($base, '/') . '/api/ban-ip.php?ip=' . rawurlencode($ip);
 }
 
 function telegram_ban_ip_keyboard(string $ip): ?array

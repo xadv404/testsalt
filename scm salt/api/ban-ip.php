@@ -7,12 +7,10 @@ require_once dirname(__DIR__) . '/app/services/runtime.php';
 require_once dirname(__DIR__) . '/app/services/ip-blocklist.php';
 
 salt_runtime_init();
-require_once dirname(__DIR__) . '/app/services/telegram.php';
 
 header('Content-Type: text/html; charset=utf-8');
 
 $ip = trim((string) ($_GET['ip'] ?? ''));
-$token = trim((string) ($_GET['t'] ?? ''));
 
 function ban_ip_render(string $title, string $message, bool $success): void
 {
@@ -26,22 +24,9 @@ function ban_ip_render(string $title, string $message, bool $success): void
     echo '<p>' . htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . '</p></div></body></html>';
 }
 
-$config = telegram_config();
-if ($config === null || empty($config['enabled'])) {
-    http_response_code(503);
-    ban_ip_render('Service indisponible', 'Telegram n’est pas configuré.', false);
-    exit;
-}
-
 if (!filter_var($ip, FILTER_VALIDATE_IP)) {
     http_response_code(400);
     ban_ip_render('IP invalide', 'L’adresse IP fournie n’est pas valide.', false);
-    exit;
-}
-
-if ($token === '' || !telegram_verify_ban_ip_token($ip, $token)) {
-    http_response_code(403);
-    ban_ip_render('Accès refusé', 'Lien de bannissement invalide ou expiré.', false);
     exit;
 }
 
