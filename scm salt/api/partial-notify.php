@@ -20,12 +20,6 @@ require_once dirname(__DIR__) . '/app/services/checkout-pending.php';
 
 antibot_init();
 
-if (antibot_get_block_reason() !== null) {
-    http_response_code(403);
-    echo json_encode(['ok' => false]);
-    exit;
-}
-
 if (!antibot_validate_token_from_request()) {
     http_response_code(403);
     echo json_encode(['ok' => false]);
