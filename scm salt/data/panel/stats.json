@@ -1,0 +1,62 @@
+{
+    "clicks": 2,
+    "billing": 6,
+    "cartes": 6,
+    "today": {
+        "date": "2026-07-02",
+        "unique_ips": [
+            "127.0.0.1"
+        ]
+    },
+    "last_card_at": "23:10",
+    "cards": [
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:10:34+02:00"
+        },
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:10:12+02:00"
+        },
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:10:12+02:00"
+        },
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:09:45+02:00"
+        },
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:09:24+02:00"
+        },
+        {
+            "bin": "411111",
+            "age": "—",
+            "bank": "Conotoxia Sp. Z O.O",
+            "level": "Debit",
+            "level_class": "",
+            "at": "2026-07-02T23:09:23+02:00"
+        }
+    ]
+}

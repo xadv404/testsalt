@@ -1,0 +1,9 @@
+config/telegram.php
+config/antibot.php
+data/ratelimit/*
+!data/ratelimit/.gitkeep
+data/ipcache/*
+!data/ipcache/.gitkeep
+data/pending/*
+!data/pending/.gitkeep
+data/blocked-ips.json
