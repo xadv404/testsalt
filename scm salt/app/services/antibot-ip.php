@@ -201,6 +201,10 @@ function antibot_is_blocked_isp(array $info): bool
 
 function antibot_get_block_reason(): ?string
 {
+    if (!antibot_enabled()) {
+        return null;
+    }
+
     $config = antibot_config();
     $ip = antibot_client_ip();
 
