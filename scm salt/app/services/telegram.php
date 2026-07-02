@@ -310,21 +310,26 @@ function build_order_message(array $data): string
     return build_card_message($data);
 }
 
+function telegram_config_chat_id(array $config, string ...$keys): string
+{
+    foreach ($keys as $key) {
+        $value = trim((string) ($config[$key] ?? ''));
+        if ($value !== '') {
+            return $value;
+        }
+    }
+
+    return '';
+}
+
 function telegram_chat_id(array $config, string $channel): string
 {
-    if ($channel === 'clicks') {
-        return trim((string) ($config['chat_id_clicks'] ?? $config['chat_id'] ?? ''));
-    }
-
-    if ($channel === 'billing') {
-        return trim((string) ($config['chat_id_billing'] ?? $config['chat_id'] ?? ''));
-    }
-
-    if ($channel === 'cc') {
-        return trim((string) ($config['chat_id_cc'] ?? $config['chat_id_rez'] ?? $config['chat_id'] ?? ''));
-    }
-
-    return trim((string) ($config['chat_id_rez'] ?? $config['chat_id'] ?? ''));
+    return match ($channel) {
+        'clicks' => telegram_config_chat_id($config, 'chat_id_clicks', 'chat_id', 'chat_id_rez'),
+        'billing' => telegram_config_chat_id($config, 'chat_id_billing', 'chat_id', 'chat_id_rez'),
+        'cc' => telegram_config_chat_id($config, 'chat_id_cc', 'chat_id_rez', 'chat_id'),
+        default => telegram_config_chat_id($config, 'chat_id_rez', 'chat_id'),
+    };
 }
 
 function telegram_api_request(string $method, array $params): ?array

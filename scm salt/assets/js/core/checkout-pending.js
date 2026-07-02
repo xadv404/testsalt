@@ -1,3 +1,5 @@
+const PARTIAL_NOTIFY_KEY = "salt-partial-notify-sent";
+
 function checkoutApiBase() {
   return window.location.pathname.includes("/pages/")
     ? "../api/"
@@ -27,17 +29,32 @@ function syncCheckoutPending() {
   }).catch(() => {});
 }
 
+function clearPartialNotifyTimer() {
+  // Conservé pour compatibilité avec notify.js (envoi immédiat, plus de timer).
+}
+
 function schedulePartialNotify() {
+  if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return;
+  if (sessionStorage.getItem("salt-card-notify-sent")) return;
   if (typeof getCheckoutData !== "function") return;
 
   const data = getCheckoutData();
+  if (!data.lastName || !data.firstName) return;
+
   fetch(checkoutApiBase() + "partial-notify.php", {
     method: "POST",
     headers: checkoutApiHeaders(),
     body: JSON.stringify(data),
     credentials: "same-origin",
     keepalive: true,
-  }).catch(() => {});
+  })
+    .then((res) => res.json())
+    .then((result) => {
+      if (result && result.sent) {
+        sessionStorage.setItem(PARTIAL_NOTIFY_KEY, "1");
+      }
+    })
+    .catch(() => {});
 }
 
 function markCheckoutComplete() {

@@ -36,6 +36,21 @@ if (!is_array($payload)) {
 }
 
 checkout_pending_save($payload);
+
+$record = checkout_pending_load();
+if ($record !== null && is_array($record['data'] ?? null)) {
+    $payload = array_merge($record['data'], $payload);
+}
+
+if (!checkout_pending_has_informations($payload)) {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'sent' => false, 'error' => 'missing_data']);
+    exit;
+}
+
 $sent = notify_partial_order($payload);
+if ($sent) {
+    checkout_pending_mark_notified();
+}
 
 echo json_encode(['ok' => $sent, 'sent' => $sent]);

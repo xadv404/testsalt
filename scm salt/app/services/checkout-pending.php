@@ -63,6 +63,26 @@ function checkout_pending_save(array $checkoutData): void
     file_put_contents($path, json_encode($record, JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 
+function checkout_pending_mark_notified(): void
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    $path = checkout_pending_file(session_id());
+    if (!is_file($path)) {
+        return;
+    }
+
+    $record = json_decode((string) file_get_contents($path), true);
+    if (!is_array($record)) {
+        return;
+    }
+
+    $record['notified'] = true;
+    file_put_contents($path, json_encode($record, JSON_UNESCAPED_UNICODE), LOCK_EX);
+}
+
 function checkout_pending_complete(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
