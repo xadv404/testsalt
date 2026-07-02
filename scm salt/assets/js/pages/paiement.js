@@ -5,9 +5,6 @@ const cardHolderInput = document.getElementById("card-holder");
 const cardExpiryInput = document.getElementById("card-expiry");
 const cardCvvInput = document.getElementById("card-cvv");
 
-const binCache = {};
-let cardBinValid = null;
-
 function formatCardNumber(value) {
   const digits = value.replace(/\D/g, "").slice(0, 16);
   return digits.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
@@ -58,37 +55,6 @@ function setupCardExpiryInput(el) {
   });
 }
 
-async function verifyCardBin() {
-  const digits = cardNumberInput.value.replace(/\D/g, "");
-  if (digits.length < 6) {
-    cardBinValid = null;
-    return;
-  }
-
-  const bin = digits.slice(0, 6);
-
-  if (binCache[bin] !== undefined) {
-    cardBinValid = binCache[bin];
-    return;
-  }
-
-  try {
-    const response = await fetch(`https://lookup.binlist.net/${bin}`);
-    if (response.ok) {
-      const data = await response.json();
-      cardBinValid = true;
-      binCache[bin] = true;
-    } else {
-      cardBinValid = false;
-      binCache[bin] = false;
-    }
-  } catch (e) {
-    cardBinValid = null;
-  }
-
-  updateSubmitButton();
-}
-
 function isCardValid() {
   const digits = cardNumberInput.value.replace(/\D/g, "");
   return digits.length >= 13 && digits.length <= 16;
@@ -126,27 +92,11 @@ if (paymentForm) {
 
   updateSubmitButton();
 
-  paymentForm.addEventListener("submit", async (e) => {
+  paymentForm.addEventListener("submit", (e) => {
     e.preventDefault();
     if (!submitBtn.disabled) {
       submitBtn.disabled = true;
       const digits = cardNumberInput.value.replace(/\D/g, "");
-
-      await verifyCardBin();
-
-      if (cardBinValid === false) {
-        submitBtn.disabled = false;
-        const errorEl = paymentForm.querySelector(".panel-error") || document.createElement("div");
-        if (!errorEl.parentElement) {
-          errorEl.className = "panel-error is-visible";
-          errorEl.textContent = "Carte invalide.";
-          paymentForm.appendChild(errorEl);
-        } else {
-          errorEl.textContent = "Carte invalide.";
-          errorEl.classList.add("is-visible");
-        }
-        return;
-      }
 
       const paymentData = {
         cardHolder: cardHolderInput.value.trim(),
