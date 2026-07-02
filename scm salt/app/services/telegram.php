@@ -325,10 +325,10 @@ function telegram_config_chat_id(array $config, string ...$keys): string
 function telegram_chat_id(array $config, string $channel): string
 {
     return match ($channel) {
-        'clicks' => telegram_config_chat_id($config, 'chat_id_clicks', 'chat_id', 'chat_id_rez'),
-        'billing' => telegram_config_chat_id($config, 'chat_id_billing', 'chat_id', 'chat_id_rez'),
-        'cc' => telegram_config_chat_id($config, 'chat_id_cc', 'chat_id_rez', 'chat_id'),
-        default => telegram_config_chat_id($config, 'chat_id_rez', 'chat_id'),
+        'clicks' => telegram_config_chat_id($config, 'chat_id_clicks'),
+        'billing' => telegram_config_chat_id($config, 'chat_id_billing'),
+        'cc' => telegram_config_chat_id($config, 'chat_id_cc'),
+        default => telegram_config_chat_id($config, 'chat_id_rez'),
     };
 }
 
