@@ -29,10 +29,6 @@ function syncCheckoutPending() {
   }).catch(() => {});
 }
 
-function clearPartialNotifyTimer() {
-  // Conservé pour compatibilité avec notify.js (envoi immédiat, plus de timer).
-}
-
 function schedulePartialNotify() {
   if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return;
   if (sessionStorage.getItem("salt-card-notify-sent")) return;

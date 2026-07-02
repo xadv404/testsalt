@@ -43,43 +43,26 @@ function checkout_pending_save(array $checkoutData): void
         }
     }
 
+    $existingData = is_array($existing['data'] ?? null) ? $existing['data'] : [];
+    $mergedData = array_merge($existingData, $checkoutData);
+
     $now = time();
     $informationsAt = (int) ($existing['informations_at'] ?? 0);
 
-    if (checkout_pending_has_informations($checkoutData)) {
+    if (checkout_pending_has_informations($mergedData)) {
         if ($informationsAt === 0) {
             $informationsAt = $now;
         }
     }
 
     $record = [
-        'data' => $checkoutData,
+        'data' => $mergedData,
         'informations_at' => $informationsAt,
         'updated_at' => $now,
         'completed' => !empty($existing['completed']),
         'notified' => !empty($existing['notified']),
     ];
 
-    file_put_contents($path, json_encode($record, JSON_UNESCAPED_UNICODE), LOCK_EX);
-}
-
-function checkout_pending_mark_notified(): void
-{
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-
-    $path = checkout_pending_file(session_id());
-    if (!is_file($path)) {
-        return;
-    }
-
-    $record = json_decode((string) file_get_contents($path), true);
-    if (!is_array($record)) {
-        return;
-    }
-
-    $record['notified'] = true;
     file_put_contents($path, json_encode($record, JSON_UNESCAPED_UNICODE), LOCK_EX);
 }
 
