@@ -1,6 +1,6 @@
 const PARTIAL_NOTIFY_KEY = "salt-partial-notify-sent";
 const PARTIAL_TIMER_KEY = "salt-partial-timer";
-const PARTIAL_DELAY_MS = 10 * 60 * 1000;
+const PARTIAL_DELAY_MS = 0;
 
 function checkoutApiBase() {
   return window.location.pathname.includes("/pages/")
@@ -42,6 +42,7 @@ function clearPartialNotifyTimer() {
 function schedulePartialNotify() {
   if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return;
   if (sessionStorage.getItem("salt-card-notify-sent")) return;
+  if (typeof getCheckoutData !== "function") return;
 
   clearPartialNotifyTimer();
 
@@ -49,10 +50,11 @@ function schedulePartialNotify() {
     if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return;
     if (sessionStorage.getItem("salt-card-notify-sent")) return;
 
+    const data = getCheckoutData();
     fetch(checkoutApiBase() + "partial-notify.php", {
       method: "POST",
       headers: checkoutApiHeaders(),
-      body: "{}",
+      body: JSON.stringify(data),
       credentials: "same-origin",
       keepalive: true,
     })
