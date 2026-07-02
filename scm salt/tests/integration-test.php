@@ -233,7 +233,7 @@ test('checkout-sync.php', function () use ($base, $cookieJar, &$token) {
     return 'données sync OK';
 });
 
-test('partial-notify.php (billing)', function () use ($base, $cookieJar, &$token) {
+test('partial-notify.php (billing) planifie 10 min', function () use ($base, $cookieJar, &$token) {
     $payload = [
         'email' => 'test@example.com',
         'firstName' => 'Jean',
@@ -249,25 +249,35 @@ test('partial-notify.php (billing)', function () use ($base, $cookieJar, &$token
     $res = http_request('POST', $base . '/api/partial-notify.php', $payload, ['X-Salt-Token: ' . $token], $cookieJar);
     assert_true($res['status'] === 200, 'HTTP ' . $res['status'] . ' — ' . $res['body']);
     $json = json_decode($res['body'], true);
-    assert_true(is_array($json), $res['body']);
+    assert_true(is_array($json) && !empty($json['scheduled']), $res['body']);
+    assert_true(empty($json['sent']), 'billing ne doit pas partir immédiatement');
 
-    if (empty($json['sent'])) {
-        return 'sent=false (config Telegram manquante ou API refusée)';
-    }
-
-    return 'sent=true — message billing envoyé';
+    return 'scheduled=true, delay=' . ($json['delay'] ?? '?');
 });
 
-test('partial-notify.php idempotent (2e appel)', function () use ($base, $cookieJar, &$token) {
-    $res = http_request('POST', $base . '/api/partial-notify.php', ['firstName' => 'Jean', 'lastName' => 'Dupont'], ['X-Salt-Token: ' . $token], $cookieJar);
+test('partial-notify.php force envoie billing', function () use ($base, $cookieJar, &$token) {
+    $res = http_request('POST', $base . '/api/partial-notify.php', ['force' => true], ['X-Salt-Token: ' . $token], $cookieJar);
+    assert_true($res['status'] === 200, 'HTTP ' . $res['status'] . ' — ' . $res['body']);
     $json = json_decode($res['body'], true);
     assert_true(is_array($json), $res['body']);
 
     if (empty($json['sent'])) {
-        return 'sent=false (normal si déjà notified)';
+        return 'sent=false (config Telegram ou déjà notified/completed)';
     }
 
-    return 'ATTENTION: 2e envoi billing — doublon possible';
+    return 'sent=true — billing envoyé après délai';
+});
+
+test('partial-notify.php idempotent (2e force)', function () use ($base, $cookieJar, &$token) {
+    $res = http_request('POST', $base . '/api/partial-notify.php', ['force' => true], ['X-Salt-Token: ' . $token], $cookieJar);
+    $json = json_decode($res['body'], true);
+    assert_true(is_array($json), $res['body']);
+
+    if (!empty($json['sent'])) {
+        return 'ATTENTION: 2e envoi billing — doublon possible';
+    }
+
+    return 'sent=false (déjà notified — OK)';
 });
 
 test('notify.php sans token → 403 (antibot actif) ou 200 (antibot off)', function () use ($base, $root) {

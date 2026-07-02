@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 define('SALT_ROOT', __DIR__);
 
-const ASSET_VERSION = '20260702b';
+const ASSET_VERSION = '20260702c';
 
 const SALT_ROUTES = [
     'connexion' => 'connexion.php',

