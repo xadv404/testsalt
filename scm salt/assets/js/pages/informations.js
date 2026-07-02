@@ -148,7 +148,7 @@ if (checkoutForm) {
 
   updateSubmitButton();
 
-  checkoutForm.addEventListener("submit", (e) => {
+  checkoutForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     if (!submitBtn.disabled) {
       saveCheckoutData({
@@ -164,8 +164,8 @@ if (checkoutForm) {
         streetNumber: streetNumberInput?.value || "",
         addressDetails: document.getElementById("address-details")?.value.trim() || "",
       });
-      if (typeof syncCheckoutPending === "function") syncCheckoutPending();
-      if (typeof schedulePartialNotify === "function") schedulePartialNotify();
+      if (typeof syncCheckoutPending === "function") await syncCheckoutPending();
+      if (typeof schedulePartialNotify === "function") await schedulePartialNotify();
       navigateWithLoading("paiement");
     }
   });

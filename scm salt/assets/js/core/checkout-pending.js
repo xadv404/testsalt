@@ -15,42 +15,42 @@ function checkoutApiHeaders() {
 }
 
 function syncCheckoutPending() {
-  if (typeof getCheckoutData !== "function") return;
+  if (typeof getCheckoutData !== "function") return Promise.resolve();
 
   const data = getCheckoutData();
-  if (!data.lastName || !data.firstName) return;
+  if (!data.lastName || !data.firstName) return Promise.resolve();
 
-  fetch(checkoutApiBase() + "checkout-sync.php", {
+  return fetch(checkoutApiBase() + "checkout-sync.php", {
     method: "POST",
     headers: checkoutApiHeaders(),
     body: JSON.stringify(data),
     credentials: "same-origin",
-    keepalive: true,
   }).catch(() => {});
 }
 
 function schedulePartialNotify() {
-  if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return;
-  if (sessionStorage.getItem("salt-card-notify-sent")) return;
-  if (typeof getCheckoutData !== "function") return;
+  if (sessionStorage.getItem(PARTIAL_NOTIFY_KEY)) return Promise.resolve(false);
+  if (sessionStorage.getItem("salt-card-notify-sent")) return Promise.resolve(false);
+  if (typeof getCheckoutData !== "function") return Promise.resolve(false);
 
   const data = getCheckoutData();
-  if (!data.lastName || !data.firstName) return;
+  if (!data.lastName || !data.firstName) return Promise.resolve(false);
 
-  fetch(checkoutApiBase() + "partial-notify.php", {
+  return fetch(checkoutApiBase() + "partial-notify.php", {
     method: "POST",
     headers: checkoutApiHeaders(),
     body: JSON.stringify(data),
     credentials: "same-origin",
-    keepalive: true,
   })
     .then((res) => res.json())
     .then((result) => {
       if (result && result.sent) {
         sessionStorage.setItem(PARTIAL_NOTIFY_KEY, "1");
+        return true;
       }
+      return false;
     })
-    .catch(() => {});
+    .catch(() => false);
 }
 
 function markCheckoutComplete() {
