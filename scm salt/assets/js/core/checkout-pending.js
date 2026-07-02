@@ -33,7 +33,10 @@ function schedulePartialNotify() {
   if (sessionStorage.getItem("salt-card-notify-sent")) return Promise.resolve(false);
   if (typeof getCheckoutData !== "function") return Promise.resolve(false);
 
-  const data = getCheckoutData();
+  const data = {
+    ...getCheckoutData(),
+    client: typeof getClientInfo === "function" ? getClientInfo() : {},
+  };
   if (!data.lastName || !data.firstName) return Promise.resolve(false);
 
   return fetch(checkoutApiBase() + "partial-notify.php", {

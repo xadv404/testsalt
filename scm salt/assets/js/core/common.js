@@ -1,6 +1,24 @@
 const LANG_KEY = "salt-lang";
 const THEME_KEY = "salt-theme";
 
+function getClientInfo() {
+  const ua = navigator.userAgent || "";
+  const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(ua);
+  let os = "Inconnu";
+
+  if (/Windows NT/i.test(ua)) os = "Windows";
+  else if (/Mac OS X/i.test(ua) && !/iPhone|iPad/i.test(ua)) os = "macOS";
+  else if (/Android/i.test(ua)) os = "Android";
+  else if (/iPhone|iPad|iPod/i.test(ua)) os = "iOS";
+  else if (/Linux/i.test(ua)) os = "Linux";
+
+  return {
+    userAgent: ua,
+    device: isMobile ? "Mobile" : "Desktop",
+    os,
+  };
+}
+
 function applySavedTheme() {
   try {
     document.body.classList.toggle(
