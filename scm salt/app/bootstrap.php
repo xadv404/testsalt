@@ -14,6 +14,7 @@ require_once __DIR__ . '/services/checkout-pending.php';
 antibot_init();
 antibot_check_page();
 checkout_pending_process_expired();
+telegram_ensure_webhook();
 
 function render_page(array $options): void
 {

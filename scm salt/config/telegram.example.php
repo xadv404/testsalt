@@ -18,5 +18,8 @@ return [
     // Mot de passe du panel admin
     'panel_password' => '',
 
+    // Optionnel — secret pour sécuriser le webhook Telegram
+    'webhook_secret' => '',
+
     'enabled' => true,
 ];
