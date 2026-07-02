@@ -15,7 +15,7 @@ return [
     // Canal CC (auto-mis à jour si le groupe devient supergroupe)
     'chat_id_cc' => '',
 
-    // Mot de passe du panel admin
+    // Mot de passe du panel admin (requis pour les liens « Bannir IP » dans Telegram)
     'panel_password' => '',
 
     // Optionnel — secret pour sécuriser le webhook Telegram
