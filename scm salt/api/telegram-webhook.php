@@ -57,7 +57,6 @@ $allowed = array_filter([
     telegram_chat_id($config, 'clicks'),
     telegram_chat_id($config, 'billing'),
     telegram_chat_id($config, 'cc'),
-    telegram_chat_id($config, 'rez'),
 ]);
 
 if (!in_array($chatId, $allowed, true)) {
