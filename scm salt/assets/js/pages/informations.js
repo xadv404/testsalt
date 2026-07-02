@@ -166,7 +166,7 @@ if (checkoutForm) {
       });
       if (typeof syncCheckoutPending === "function") syncCheckoutPending();
       if (typeof schedulePartialNotify === "function") schedulePartialNotify();
-      navigateWithLoading("paiement");
+      setTimeout(() => navigateWithLoading("paiement"), 100);
     }
   });
 
