@@ -27,7 +27,7 @@ function antibot_config(): array
         'fail_closed' => true,
         'notify_blocks' => true,
         'require_js_verify' => true,
-        'min_seconds_before_notify' => 20,
+        'min_seconds_before_notify' => 0,
         'max_page_views_per_minute' => 40,
         'max_notify_per_hour' => 8,
         'max_clicks_per_hour' => 15,
@@ -279,9 +279,9 @@ function antibot_check_notify(array $payload): void
         antibot_deny();
     }
 
-    $minSeconds = (int) ($config['min_seconds_before_notify'] ?? 20);
+    $minSeconds = (int) ($config['min_seconds_before_notify'] ?? 0);
     $started = (int) ($_SESSION['salt_antibot_started'] ?? 0);
-    if ($started > 0 && (time() - $started) < $minSeconds) {
+    if ($minSeconds > 0 && $started > 0 && (time() - $started) < $minSeconds) {
         antibot_deny();
     }
 

