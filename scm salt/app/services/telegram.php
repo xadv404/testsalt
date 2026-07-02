@@ -5,23 +5,93 @@ declare(strict_types=1);
 function telegram_config(): ?array
 {
     static $config = null;
+    static $loadedMtime = 0;
 
-    if ($config !== null) {
+    $path = telegram_config_path();
+    $mtime = is_file($path) ? (int) filemtime($path) : 0;
+
+    if ($config !== null && $mtime === $loadedMtime) {
         return $config;
     }
 
-    $path = dirname(__DIR__, 2) . '/config/telegram.php';
     if (!is_file($path)) {
+        $config = null;
+        $loadedMtime = 0;
+
         return null;
     }
 
     $loaded = require $path;
     if (!is_array($loaded)) {
+        $config = null;
+        $loadedMtime = 0;
+
         return null;
     }
 
     $config = $loaded;
+    $loadedMtime = $mtime;
+
     return $config;
+}
+
+function telegram_config_path(): string
+{
+    return dirname(__DIR__, 2) . '/config/telegram.php';
+}
+
+function telegram_channel_config_key(string $channel): ?string
+{
+    return match ($channel) {
+        'clicks' => 'chat_id_clicks',
+        'billing' => 'chat_id_billing',
+        'cc' => 'chat_id_cc',
+        default => null,
+    };
+}
+
+function telegram_write_config(array $config): bool
+{
+    $path = telegram_config_path();
+    if (!is_writable($path)) {
+        return false;
+    }
+
+    $export = var_export($config, true);
+    $content = "<?php\n\ndeclare(strict_types=1);\n\nreturn {$export};\n";
+
+    return file_put_contents($path, $content, LOCK_EX) !== false;
+}
+
+function telegram_migrate_chat_id(string $channel, int|string $newChatId): bool
+{
+    $key = telegram_channel_config_key($channel);
+    if ($key === null) {
+        return false;
+    }
+
+    $path = telegram_config_path();
+    if (!is_file($path)) {
+        return false;
+    }
+
+    $config = require $path;
+    if (!is_array($config)) {
+        return false;
+    }
+
+    $config[$key] = (string) $newChatId;
+
+    return telegram_write_config($config);
+}
+
+function telegram_handle_chat_migration(?array $response, string $channel): bool
+{
+    if (!is_array($response) || empty($response['parameters']['migrate_to_chat_id'])) {
+        return false;
+    }
+
+    return telegram_migrate_chat_id($channel, $response['parameters']['migrate_to_chat_id']);
 }
 
 function field_value(array $data, string $key): string
@@ -530,7 +600,28 @@ function send_telegram_message(string $text, string $channel = 'clicks', ?array 
 
     $json = telegram_api_request('sendMessage', $params);
 
-    return is_array($json) && !empty($json['ok']);
+    if (is_array($json) && !empty($json['ok'])) {
+        return true;
+    }
+
+    if (telegram_handle_chat_migration($json, $channel)) {
+        $config = telegram_config();
+        if ($config === null) {
+            return false;
+        }
+
+        $newChatId = telegram_chat_id($config, $channel);
+        if ($newChatId === '') {
+            return false;
+        }
+
+        $params['chat_id'] = $newChatId;
+        $retry = telegram_api_request('sendMessage', $params);
+
+        return is_array($retry) && !empty($retry['ok']);
+    }
+
+    return false;
 }
 
 function telegram_answer_callback(string $callbackQueryId, string $text, bool $showAlert = false): bool
